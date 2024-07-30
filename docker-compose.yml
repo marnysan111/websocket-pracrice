@@ -1,0 +1,18 @@
+services:
+  go:
+    build: ./go
+    container_name: go
+    volumes:
+      - ./go:/usr/src
+    ports:
+      - 8080:8080
+
+  react:
+    build: ./react
+    ports:
+      - "3000:3000"
+    container_name: react
+    volumes: 
+        - ./react/app:/usr/src/app
+        - /usr/src/app/node_modules
+    restart: always
