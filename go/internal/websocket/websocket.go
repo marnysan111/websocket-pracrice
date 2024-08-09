@@ -1,10 +1,12 @@
 package websocket
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -24,26 +26,50 @@ type Message struct {
 }
 
 type Room struct {
+	RoomID   string
+	UUID     string
 	Clients  map[*websocket.Conn]bool
 	Messages []Message
 }
 
+type RoomDetail struct {
+	RoomID string
+	UUID   string
+}
+
 var Rooms = make(map[string]*Room)
 
-func NewRoom() *Room {
-	return &Room{
+func NewRoom(roomID string) *Room {
+	roomUUID := uuid.New().String()
+	room := &Room{
+		UUID:     roomUUID,
+		RoomID:   roomID,
 		Clients:  make(map[*websocket.Conn]bool),
 		Messages: make([]Message, 0),
 	}
+	Rooms[roomID] = room
+	return room
 }
 
 func GetRoom(roomID string) *Room {
 	room, exists := Rooms[roomID]
 	if !exists {
-		room = NewRoom()
+		room = NewRoom(roomID)
 		Rooms[roomID] = room
 	}
 	return room
+}
+
+func GetRoomList() []RoomDetail {
+	for _, r := range Rooms {
+		fmt.Println(r.Messages)
+	}
+	roomList := []RoomDetail{}
+	for _, room := range Rooms {
+		roomDetail := RoomDetail{RoomID: room.RoomID, UUID: room.UUID}
+		roomList = append(roomList, roomDetail)
+	}
+	return roomList
 }
 
 // ConnHandler handles WebSocket connections

@@ -30,5 +30,14 @@ func SetupRouter() *gin.Engine {
 		roomID := c.Param("roomID")
 		websocket.ConnHandler(c, roomID)
 	})
+
+	api.GET("/roomlist", func(c *gin.Context) {
+		rooms := websocket.GetRoomList()
+
+		c.JSON(200, gin.H{
+			"result":  "success",
+			"message": rooms,
+		})
+	})
 	return r
 }
